@@ -37,6 +37,7 @@ Route::get('/home', function () {
     return redirect()->route('dashboard');
 })->middleware('auth')->name('home'); // Beri nama 'home' agar redirect dari Auth::routes() bekerja
 
+Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 // Rute yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
     // Rute dashboard utama, sekarang mengarah ke ProjectController@index

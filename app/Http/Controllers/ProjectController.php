@@ -3,83 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use App\Models\User; // Tambahkan ini untuk relasi assigned_to di tasks
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
-    /**
-     * Tampilkan daftar proyek untuk pengguna yang login.
-     * Ini akan menjadi halaman dashboard utama.
-     */
-    public function index()
+    public function __construct()
     {
-        // Pastikan pengguna sudah login sebelum mengambil proyek
-        if (Auth::check()) {
-            $projects = Auth::user()->projects()->latest()->get();
-        } else {
-            // Jika belum login, kembalikan ke halaman login
-            return redirect()->route('login');
-        }
-
-        return view('dashboard', compact('projects')); // Menggunakan 'dashboard' view
+        $this->middleware('auth');
     }
 
     /**
-     * Tampilkan form untuk membuat proyek baru.
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $projects = Auth::user()->projects()->latest()->get();
+        return view('dashboard', compact('projects'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        // Hanya pengguna yang login yang bisa membuat proyek
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
         return view('projects.create');
     }
 
     /**
-     * Simpan proyek baru ke database.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        // Validasi data yang masuk
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'status' => 'required|in:pending,in_progress,completed,cancelled',
             'start_date' => 'nullable|date',
             'due_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|in:pending,in_progress,completed,cancelled',
         ]);
 
-        // Buat proyek dan kaitkan dengan user yang sedang login
-        Auth::user()->projects()->create($request->all());
+        $validated['user_id'] = Auth::id();
 
-        return redirect()->route('projects.index')->with('success', 'Proyek berhasil dibuat!');
+        Project::create($validated);
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Proyek berhasil dibuat!');
     }
 
     /**
-     * Tampilkan detail proyek tertentu.
+     * Display the specified resource.
      */
     public function show(Project $project)
     {
-        // Pastikan hanya pemilik proyek yang bisa melihat detailnya
+        // Check if user owns this project
         if ($project->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.'); // Akses ditolak jika bukan pemilik
+            abort(403, 'Unauthorized action.');
         }
 
-        // Muat tasks yang terkait dengan proyek ini
-        $project->load('tasks.assignee'); // Memuat tugas dan juga penugasan user-nya
-
+        // Load tasks relationship
+        $project->load(['tasks.assignee', 'user']);
+        
         return view('projects.show', compact('project'));
     }
 
     /**
-     * Tampilkan form untuk mengedit proyek yang sudah ada.
+     * Show the form for editing the specified resource.
      */
     public function edit(Project $project)
     {
-        // Pastikan hanya pemilik proyek yang bisa mengedit
+        // Check if user owns this project
         if ($project->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -88,42 +81,42 @@ class ProjectController extends Controller
     }
 
     /**
-     * Perbarui proyek di database.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, Project $project)
     {
-        // Pastikan hanya pemilik proyek yang bisa memperbarui
+        // Check if user owns this project
         if ($project->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Validasi data yang masuk
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'status' => 'required|in:pending,in_progress,completed,cancelled',
             'start_date' => 'nullable|date',
             'due_date' => 'nullable|date|after_or_equal:start_date',
-            'status' => 'required|in:pending,in_progress,completed,cancelled',
         ]);
 
-        // Perbarui data proyek
-        $project->update($request->all());
+        $project->update($validated);
 
-        return redirect()->route('projects.index')->with('success', 'Proyek berhasil diperbarui!');
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Proyek berhasil diperbarui!');
     }
 
     /**
-     * Hapus proyek dari database.
+     * Remove the specified resource from storage.
      */
     public function destroy(Project $project)
     {
-        // Pastikan hanya pemilik proyek yang bisa menghapus
+        // Check if user owns this project
         if ($project->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
         $project->delete();
 
-        return redirect()->route('projects.index')->with('success', 'Proyek berhasil dihapus!');
+        return redirect()->route('dashboard')
+            ->with('success', 'Proyek berhasil dihapus!');
     }
 }
