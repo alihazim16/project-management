@@ -1,94 +1,126 @@
-{{-- resources/views/auth/login.blade.php --}}
-@extends('layouts.app') {{-- Pastikan Anda memiliki layout 'app' atau sesuaikan --}}
+@extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 p-4 sm:p-6 lg:p-8">
-    <div class="bg-white p-8 sm:p-10 rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
-        <div class="text-center mb-8">
-            <h2 class="text-4xl font-extrabold text-gray-900 mb-2">Selamat Datang</h2>
-            <p class="text-gray-600">Masuk ke akun Anda untuk melanjutkan</p>
+<div class="min-h-screen relative overflow-hidden bg-black">
+    <!-- Animated Background Effects -->
+    <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/50 via-black to-purple-900/50"></div>
+        <div class="absolute inset-0" style="background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%)"></div>
+    </div>
+
+    <!-- Grid Pattern Overlay -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="h-full w-full" 
+             style="background-image: linear-gradient(rgba(6,182,212,0.2) 1px, transparent 1px), 
+                    linear-gradient(90deg, rgba(6,182,212,0.2) 1px, transparent 1px); 
+                    background-size: 50px 50px;">
         </div>
+    </div>
 
-        @if(session('status'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4 text-sm" role="alert">
-                <span class="block sm:inline">{{ session('status') }}</span>
+    <!-- Main Content -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <!-- Login Card -->
+            <div class="relative group">
+                <!-- Glow Effect -->
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-70 transition duration-1000"></div>
+                
+                <!-- Card Content -->
+                <div class="relative bg-gray-900/80 backdrop-blur-xl p-8 rounded-2xl border border-gray-700/50">
+                    <!-- Header -->
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 mb-4">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                            System Login
+                        </h2>
+                        <p class="text-gray-400 text-sm mt-2">Access your dashboard</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                        @csrf
+                        
+                        <!-- Email Input -->
+                        <div class="space-y-2">
+                            <label class="text-gray-300 text-sm">Email</label>
+                            <div class="relative group">
+                                <input type="email" 
+                                       name="email" 
+                                       class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-gray-100 focus:outline-none focus:border-cyan-500 transition duration-300"
+                                       required>
+                                <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-500/20 to-purple-500/20 opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none"></div>
+                            </div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="space-y-2">
+                            <label class="text-gray-300 text-sm">Password</label>
+                            <div class="relative group">
+                                <input type="password" 
+                                       name="password" 
+                                       class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-gray-100 focus:outline-none focus:border-purple-500 transition duration-300"
+                                       required>
+                                <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition duration-300 pointer-events-none"></div>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center space-x-2 text-sm text-gray-400">
+                                <input type="checkbox" name="remember" class="form-checkbox bg-gray-800 border-gray-700">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="{{ route('password.request') }}" class="text-sm text-cyan-400 hover:text-cyan-300">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-medium py-3 px-4 rounded-lg hover:from-cyan-400 hover:to-purple-400 transition duration-300 transform hover:scale-[1.02]">
+                            Login
+                        </button>
+                    </form>
+
+                    <!-- Register Link -->
+                    <div class="mt-6 text-center text-gray-400 text-sm">
+                        Don't have an account? 
+                        <a href="{{ route('register') }}" class="text-cyan-400 hover:text-cyan-300">
+                            Register here
+                        </a>
+                    </div>
+                </div>
             </div>
-        @endif
-
-        @if($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 text-sm" role="alert">
-                <strong class="font-bold">Oops!</strong>
-                <span class="block sm:inline">Ada beberapa masalah dengan input Anda.</span>
-                <ul class="mt-2 list-disc list-inside text-xs">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-
-            <div class="mb-5">
-                <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">Alamat Email</label>
-                <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2.5 px-4 text-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out @error('email') border-red-500 @enderror"
-                    value="{{ old('email') }}"
-                    required
-                    autocomplete="email"
-                    autofocus
-                    placeholder="nama@contoh.com"
-                >
-                @error('email')
-                    <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="mb-6">
-                <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Kata Sandi</label>
-                <input
-                    type="password"
-                    name="password"
-                    id="password"
-                    class="shadow-sm appearance-none border border-gray-300 rounded-lg w-full py-2.5 px-4 text-gray-800 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out @error('password') border-red-500 @enderror"
-                    required
-                    autocomplete="current-password"
-                    placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                >
-                @error('password')
-                    <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex items-center justify-between mb-6">
-                <label class="flex items-center text-gray-700 text-sm cursor-pointer">
-                    <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }} class="form-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
-                    <span class="ml-2 select-none">Ingat Saya</span>
-                </label>
-
-                @if (Route::has('password.request'))
-                    <a class="inline-block align-baseline font-semibold text-sm text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out" href="{{ route('password.request') }}">
-                        Lupa Kata Sandi?
-                    </a>
-                @endif
-            </div>
-
-            <button
-                type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
-            >
-                Masuk
-            </button>
-        </form>
-
-        <p class="text-center text-gray-600 text-sm mt-8">
-            Belum punya akun?
-            <a class="font-bold text-blue-600 hover:text-blue-800 transition duration-150 ease-in-out" href="{{ route('register') }}">Daftar di sini</a>
-        </p>
+        </div>
     </div>
 </div>
+
+<style>
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.animate-glow {
+    animation: pulse-glow 2s infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #06b6d4, #8b5cf6);
+    border-radius: 4px;
+}
+</style>
 @endsection
