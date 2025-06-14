@@ -1,51 +1,48 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\TaskController; // Anda perlu membuat TaskController
-use App\Http\Controllers\HomeController; // Tambahkan ini, karena Auth::routes() biasanya membuat HomeController
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
-// Rute Halaman Depan
+// Rute Halaman Depan - Langsung redirect ke login jika belum auth
 Route::get('/', function () {
-    // Jika user sudah login, arahkan ke dashboard
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-    // Jika belum, tampilkan halaman welcome
-    return view('welcome');
+    // Langsung ke halaman login sebagai halaman utama
+    return redirect()->route('login');
 });
 
-// Rute Autentikasi yang disediakan oleh Laravel UI
-// Ini akan mendaftarkan rute seperti /login, /register, /logout, /home
+// Rute Autentikasi Laravel UI
 Auth::routes();
 
-// Rute khusus untuk dashboard (diarahkan ke ProjectController@index)
-// Jika user mengakses /home setelah login (default dari Auth::routes), kita redirect ke dashboard
+// Redirect /home ke dashboard setelah login
 Route::get('/home', function () {
     return redirect()->route('dashboard');
-})->middleware('auth')->name('home'); // Beri nama 'home' agar redirect dari Auth::routes() bekerja
+})->middleware('auth')->name('home');
 
-Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-// Rute yang memerlukan autentikasi
+// Grup rute yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
-    // Rute dashboard utama, sekarang mengarah ke ProjectController@index
+    // Dashboard utama
     Route::get('/dashboard', [ProjectController::class, 'index'])->name('dashboard');
-
-    // Rute Resource untuk Proyek (mencakup CRUD)
+    
+    // Resource routes untuk projects (CRUD lengkap)
     Route::resource('projects', ProjectController::class);
-
-    // Rute Resource untuk Tugas (Anda perlu membuat TaskController)
+    
+    // Jika Anda memiliki TaskController, uncomment baris berikut:
     // Route::resource('tasks', TaskController::class);
+    
+    // Rute tambahan jika diperlukan
+    Route::get('/projects/{project}/tasks', [TaskController::class, 'index'])->name('projects.tasks.index');
+    Route::post('/projects/{project}/tasks', [TaskController::class, 'store'])->name('projects.tasks.store');
 });
+
+// Hapus fallback route yang menyebabkan masalah logout
